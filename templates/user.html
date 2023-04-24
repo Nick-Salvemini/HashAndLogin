@@ -11,4 +11,13 @@
     <li>Email: {{user.email}}</li>
 </ul>
 
+<h2>User Feedback</h2>
+<ol>
+    {% for feedback in feedbacks %}
+    <h3>{{feedback.title}}</h3>
+    <ul>
+        <p>{{feedback.content}}</p>
+    </ul>
+    {% endfor %}
+</ol>
 {% endblock %}

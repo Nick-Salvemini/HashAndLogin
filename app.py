@@ -1,6 +1,6 @@
 from flask import Flask, session, redirect, render_template, flash
 from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db, User
+from models import db, connect_db, User, Feedback
 from sqlalchemy import text
 from forms import RegisterUserForm, LoginForm
 from sqlalchemy.exc import IntegrityError
@@ -71,8 +71,49 @@ def logout():
 @app.route('/users/<username>')
 def user_info(username):
     user = User.query.get_or_404(username)
-    if 'username' not in session:
+    feedbacks = Feedback.query.filter_by(username=user.username)
+    if 'username' not in session or session['username'] != user.username:
         flash('User must be logged in to view user data')
         return redirect('/login')
     else:
-        return render_template('user.html', user=user)
+        return render_template('user.html', user=user, feedbacks=feedbacks)
+    
+# @app.route('/users/<username>/delete', methods=['POST'])
+# def delete_user(username):
+#     user = User.query.get_or_404(username)
+#     feedbacks = Feedback.query.filter_by(username=user.username)
+#     if 'username' not in session and session['username'] == user.username:
+#         db.session.delete(user)
+#         db.session.delete(feedbacks)
+#         db.session.commit()
+#         return redirect('/')
+#     else:
+#         flash('User must be logged in to delete')
+#         return redirect('/login')
+
+@app.route('/users/<username>/delete', methods=['POST'])
+def delete_user(username):
+    user = User.query.get_or_404(username)
+    db.session.delete(user)
+    db.session.delete(feedbacks)
+    db.session.commit()
+    return redirect('/')
+    
+
+
+
+
+
+
+
+
+
+
+# @app.route('/users/<username>/feedback/add', methods=['GET', 'POST'])
+# def add_feedback():
+
+# @app.route('/feedback/<feedback_id>/update', methods=['GET', 'POST'])\
+# def update_feedback():
+
+# @app.route('/feedback/<feedback_id>/delete', methods=['POST'])
+# def delete_feedback():
