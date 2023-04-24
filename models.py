@@ -24,19 +24,20 @@ class User(db.Model):
                         nullable=False)
     last_name = db.Column(db.String(30),
                         nullable=False)
+    feedback = db.relationship('Feedback')
     
     def __repr__(self):
         u = self
-        return f'<User - Username: {self.username} ; Password: {self.password} ; Email: {self.email} ; First Name: {self.first_name} ; Last Name: {self.last_name}>'
+        return f'<User - Username: {u.username} ; Password: {u.password} ; Email: {u.email} ; First Name: {u.first_name} ; Last Name: {u.last_name}>'
     
     @classmethod
-    def register(cls, username, password):
+    def register(cls, username, password, email, first_name, last_name):
         '''register a user with their username and hash their password'''
 
         hashed = bcrypt.generate_password_hash(password)
         hashed_utf8 = hashed.decode('utf8')
         
-        return cls(username=username, password=hashed_utf8)
+        return cls(username=username, password=hashed_utf8, email=email, first_name=first_name, last_name=last_name)
 
 
     @classmethod
@@ -49,3 +50,22 @@ class User(db.Model):
             return user
         else:
             return False
+        
+class Feedback(db.Model):
+    __tablename__ = 'feedback'
+
+    id = db.Column(db.Integer,
+                   primary_key = True,
+                   autoincrement=True)
+    title = db.Column(db.String(100),
+                      nullable=False)
+    content = db.Column(db.Text,
+                        nullable=False)
+    username = db.Column(db.String(20),
+                         db.ForeignKey('users.username'),
+                         primary_key=True)
+    user = db.relationship('User')
+
+    def __repr__(self):
+        f = self
+        return f'<Feedback - ID: {f.id} ; Username: {f.username} ;  Title: {f.title} ; Content: {f.content}>'
