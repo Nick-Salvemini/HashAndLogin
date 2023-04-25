@@ -97,14 +97,17 @@ def delete_user(username):
 def add_feedback(username):
     user = User.query.get_or_404(username)
     form = FeedbackForm()
-    print('****************************', session['username'], user.username)
     if 'username' in session and session['username'] == user.username:
-        if form.validate_on_submit:
+        print('*********************************username check')
+        if form.validate_on_submit():
+            print('*********************************validate check')
             title = form.title.data
             content = form.content.data
 
             new_feedback = Feedback(title=title, content=content, username=username)
+            print('*********************************', new_feedback)
             db.session.add(new_feedback)
+            db.session.commit()
             return redirect(f'/users/{username}')
         else:
             return render_template('feedback.html', form=form, user=user)
