@@ -98,14 +98,11 @@ def add_feedback(username):
     user = User.query.get_or_404(username)
     form = FeedbackForm()
     if 'username' in session and session['username'] == user.username:
-        print('*********************************username check')
         if form.validate_on_submit():
-            print('*********************************validate check')
             title = form.title.data
             content = form.content.data
 
             new_feedback = Feedback(title=title, content=content, username=username)
-            print('*********************************', new_feedback)
             db.session.add(new_feedback)
             db.session.commit()
             return redirect(f'/users/{username}')
@@ -114,8 +111,29 @@ def add_feedback(username):
     else:
         return redirect('/')
 
-# @app.route('/feedback/<feedback_id>/update', methods=['GET', 'POST'])\
-# def update_feedback():
+@app.route('/feedback/<int:feedback_id>/update', methods=['GET', 'POST'])
+def update_feedback(feedback_id):
+    feedback = Feedback.query.get_or_404(feedback_id)
+    user = User.query.get_or_404(feedback.username)
+    form = FeedbackForm(obj=feedback)
+    if 'username' in session and session['username'] == user.username:
+        if form.validate_on_submit():
+            feedback.title = form.title.data
+            feedback.content = form.content.data
+            db.session.commit()
+            return redirect(f'/users/{user.username}')
+        else:
+            return render_template('edit_feedback.html', form=form, user=user, feedback=feedback)
+    else:
+        return redirect('/')
 
-# @app.route('/feedback/<feedback_id>/delete', methods=['POST'])
-# def delete_feedback():
+@app.route('/feedback/<int:feedback_id>/delete', methods=['POST'])
+def delete_feedback(feedback_id):
+    feedback = Feedback.query.get_or_404(feedback_id)
+    user = User.query.get_or_404(feedback.username)
+    if 'username' in session and session['username'] == user.username:
+        db.session.delete(feedback)
+        db.session.commit()
+        return redirect(f'/users/{user.username}')
+    else:
+        return redirect('/')

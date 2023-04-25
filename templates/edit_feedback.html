@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}{{user.username}} Feedback{% endblock %}
+
+{% block content %}
+<h1>{{user.username}} Feedback</h1>
+
+<form method="POST">
+    {{ form.hidden_tag() }}
+
+    {% for field in form if field.widget.input_type != 'hidden' %}
+    <p>
+        {{field.label}}
+        {{field}}
+
+        {% for error in field.errors %}
+        <span>{{ errror }}</span>
+        {% endfor %}
+    </p>
+    {% endfor %}
+    <button type="submit">Submit</button>
+</form>
+
+{% endblock %}

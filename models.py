@@ -62,8 +62,7 @@ class Feedback(db.Model):
     content = db.Column(db.Text,
                         nullable=False)
     username = db.Column(db.String(20),
-                         db.ForeignKey('users.username'),
-                         primary_key=True)
+                         db.ForeignKey('users.username'))
     user = db.relationship('User')
 
     def __repr__(self):
