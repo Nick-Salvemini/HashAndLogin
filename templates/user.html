@@ -11,12 +11,21 @@
     <li>Email: {{user.email}}</li>
 </ul>
 
+<form>
+    <button formaction="/users/{{user.username}}/feedback/add">Add Feedback</button>
+    <button formaction="/users/{{user.username}}/delete" formmethod="POST">Delete User</button>
+</form>
+
 <h2>User Feedback</h2>
 <ol>
     {% for feedback in feedbacks %}
     <h3>{{feedback.title}}</h3>
     <ul>
         <p>{{feedback.content}}</p>
+        <form>
+            <button formaction="/feedback/{{feedback.id}}/update">Edit</button>
+            <button formaction="/feedback/{{feedback.id}}/delete" formmethod="POST">Delete</button>
+        </form>
     </ul>
     {% endfor %}
 </ol>

@@ -78,26 +78,38 @@ def user_info(username):
     else:
         return render_template('user.html', user=user, feedbacks=feedbacks)
     
+@app.route('/users/<username>/delete', methods=['POST'])
+def delete_user(username):
+    user = User.query.get_or_404(username)
+    feedbacks = Feedback.query.filter_by(username=user.username).all()
+    print('*******************************************', user)
+    print('*******************************************', feedbacks)
+    if 'username' in session and session['username'] == user.username:
+        db.session.delete(user)
+        for feedback in feedbacks:
+            db.session.delete(feedback)
+        db.session.commit()
+        return redirect('/')
+    else:
+        flash('User must be logged in to delete')
+        return redirect('/login')
+    
 # @app.route('/users/<username>/delete', methods=['POST'])
 # def delete_user(username):
 #     user = User.query.get_or_404(username)
-#     feedbacks = Feedback.query.filter_by(username=user.username)
-#     if 'username' not in session and session['username'] == user.username:
+#     feedbacks = Feedback.query.filter_by(username=user.username).all()
+#     print('*******************************************', user)
+#     print('*******************************************', feedbacks)
+#     if 'username' in session and session['username'] == user.username:
 #         db.session.delete(user)
-#         db.session.delete(feedbacks)
+#         db.session.query(Feedback).filter(Feedback.username==user.username).delete()
 #         db.session.commit()
 #         return redirect('/')
 #     else:
 #         flash('User must be logged in to delete')
 #         return redirect('/login')
 
-@app.route('/users/<username>/delete', methods=['POST'])
-def delete_user(username):
-    user = User.query.get_or_404(username)
-    db.session.delete(user)
-    db.session.delete(feedbacks)
-    db.session.commit()
-    return redirect('/')
+
     
 
 
