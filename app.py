@@ -2,7 +2,7 @@ from flask import Flask, session, redirect, render_template, flash
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, Feedback
 from sqlalchemy import text
-from forms import RegisterUserForm, LoginForm
+from forms import RegisterUserForm, LoginForm, FeedbackForm
 from sqlalchemy.exc import IntegrityError
 
 app = Flask(__name__)
@@ -19,7 +19,7 @@ connect_db(app)
 
 @app.route('/')
 def home():
-    if 'username' in session:
+    if 'username' in session: 
         user = User.query.get_or_404(session['username'])
         return redirect(f'/users/{user.username}')
     else:
@@ -82,47 +82,34 @@ def user_info(username):
 def delete_user(username):
     user = User.query.get_or_404(username)
     feedbacks = Feedback.query.filter_by(username=user.username).all()
-    print('*******************************************', user)
-    print('*******************************************', feedbacks)
     if 'username' in session and session['username'] == user.username:
         db.session.delete(user)
         for feedback in feedbacks:
             db.session.delete(feedback)
         db.session.commit()
+        session.clear()
         return redirect('/')
     else:
         flash('User must be logged in to delete')
         return redirect('/login')
     
-# @app.route('/users/<username>/delete', methods=['POST'])
-# def delete_user(username):
-#     user = User.query.get_or_404(username)
-#     feedbacks = Feedback.query.filter_by(username=user.username).all()
-#     print('*******************************************', user)
-#     print('*******************************************', feedbacks)
-#     if 'username' in session and session['username'] == user.username:
-#         db.session.delete(user)
-#         db.session.query(Feedback).filter(Feedback.username==user.username).delete()
-#         db.session.commit()
-#         return redirect('/')
-#     else:
-#         flash('User must be logged in to delete')
-#         return redirect('/login')
+@app.route('/users/<username>/feedback/add', methods=['GET', 'POST'])
+def add_feedback(username):
+    user = User.query.get_or_404(username)
+    form = FeedbackForm()
+    print('****************************', session['username'], user.username)
+    if 'username' in session and session['username'] == user.username:
+        if form.validate_on_submit:
+            title = form.title.data
+            content = form.content.data
 
-
-    
-
-
-
-
-
-
-
-
-
-
-# @app.route('/users/<username>/feedback/add', methods=['GET', 'POST'])
-# def add_feedback():
+            new_feedback = Feedback(title=title, content=content, username=username)
+            db.session.add(new_feedback)
+            return redirect(f'/users/{username}')
+        else:
+            return render_template('feedback.html', form=form, user=user)
+    else:
+        return redirect('/')
 
 # @app.route('/feedback/<feedback_id>/update', methods=['GET', 'POST'])\
 # def update_feedback():
